@@ -47,3 +47,10 @@ function convertBimToGLTF(bimFile) {
 }
 
 export { Color, Vector, Rotation, Mesh, Info, Element, BimFile, parseBim, encodeBim, convertBimToGLTF };
+
+window.dotBimImporter = {
+    parseBim,
+    encodeBim,
+    convertBimToGLTF
+};
+
