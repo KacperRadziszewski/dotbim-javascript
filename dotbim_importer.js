@@ -1,7 +1,7 @@
 /*
-  DotBIM JavaScript Library with GeoJSON Export
-  ---------------------------------------------
-  A standalone library to read from, write to, and convert .bim files to GeoJSON.
+  DotBIM JavaScript Library with GLTF Export
+  ------------------------------------------
+  A standalone library to read from, write to, and convert .bim files to GLTF.
 */
 
 class Color { constructor(r, g, b, a) { this.r = r; this.g = g; this.b = b; this.a = a; } }
@@ -32,26 +32,18 @@ function encodeBim(bimFile) {
     return JSON.stringify(bimFile, null, 2);
 }
 
-function convertBimToGeoJSON(bimFile, selectedTypes) {
-    const features = bimFile.elements
-        .filter(element => selectedTypes.includes(element.type))
-        .map(element => ({
-            type: "Feature",
-            properties: {
-                guid: element.guid,
-                type: element.type,
-                info: element.info
-            },
-            geometry: {
-                type: "Point",
-                coordinates: [element.vector.x, element.vector.y, element.vector.z]
-            }
-        }));
+function convertBimToGLTF(bimFile) {
+    const nodes = bimFile.elements.map(e => ({
+        name: e.guid,
+        translation: [e.vector.x, e.vector.y, e.vector.z],
+        rotation: [e.rotation.qx, e.rotation.qy, e.rotation.qz, e.rotation.qw]
+    }));
 
-    return {
-        type: "FeatureCollection",
-        features
-    };
+    return JSON.stringify({
+        asset: { version: "2.0", generator: "DotBIM-to-GLTF-Converter" },
+        scenes: [{ nodes: nodes.map((_, i) => i) }],
+        nodes,
+    }, null, 2);
 }
 
-export { Color, Vector, Rotation, Mesh, Info, Element, BimFile, parseBim, encodeBim, convertBimToGeoJSON };
+export { Color, Vector, Rotation, Mesh, Info, Element, BimFile, parseBim, encodeBim, convertBimToGLTF };
